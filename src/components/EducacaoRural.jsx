@@ -39,7 +39,7 @@ const EducacaoRural = () => {
       descricao: "Aprenda como a agricultura familiar contribui para o desempenho escolar e a alimentação saudável.",
       tipoConteudo: "VIDEO",
       categoriaConteudo: "EDUCACAO",
-      urlArquivo: "https://www.youtube.com/embed/dQw4w9WgXcQ",
+      urlArquivo: "https://www.youtube.com/embed/EuWweofefeY?si=4hzYkqMbYJU19Yiy",
       ultimaAtualizacao: "2025-06-10T10:00:00Z"
     },
     {
@@ -48,7 +48,7 @@ const EducacaoRural = () => {
       descricao: "Práticas sustentáveis para agricultura familiar e conservação ambiental.",
       tipoConteudo: "VIDEO",
       categoriaConteudo: "EDUCACAO",
-      urlArquivo: "https://www.youtube.com/embed/dQw4w9WgXcQ",
+      urlArquivo: "https://www.youtube.com/embed/WjfjeLH0B2I?si=nOGIpbzbJ25Gi2BB",
       ultimaAtualizacao: "2025-06-09T15:30:00Z"
     },
     {

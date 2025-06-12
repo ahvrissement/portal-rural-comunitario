@@ -71,6 +71,14 @@ const ComunidadeRural = () => {
   const [textoEdicao, setTextoEdicao] = useState('')
   const dropdownRef = useRef(null)
 
+  // Estados para modal de vídeo - ADICIONAR
+  const [videoModalAberto, setVideoModalAberto] = useState(false)
+  const [videoAtual, setVideoAtual] = useState(null)
+
+  // Estado para animação de like - EXPANDIDO
+  const [likesAnimando, setLikesAnimando] = useState(new Set())
+  const [likesConteudo, setLikesConteudo] = useState(new Map()) // Para controlar likes dos conteúdos
+
   // Mock data para conteúdos por categoria
   const mockConteudosPorCategoria = {
     EDUCACAO: [
@@ -79,7 +87,7 @@ const ComunidadeRural = () => {
         descricao: "Aprenda métodos ecológicos para melhorar a produtividade.",
         tipoConteudo: "VIDEO",
         categoriaConteudo: "EDUCACAO",
-        urlArquivo: "https://www.youtube.com/embed/sustentavel123",
+        urlArquivo: "https://www.youtube.com/embed/0bJ_M9S9GBE?si=vQKsggbHr5H7Il0l",
         ultimaAtualizacao: "2025-06-10T10:00:00Z"
       },
       {
@@ -87,7 +95,7 @@ const ComunidadeRural = () => {
         descricao: "Guia completo para criar compostagem orgânica.",
         tipoConteudo: "TEXTO",
         categoriaConteudo: "EDUCACAO",
-        urlArquivo: "https://embrapa.br/compostagem",
+        urlArquivo: "https://sau.usp.br/wp-content/uploads/sites/646/2023/06/E-bookCompostagemComCienciav2.pdf",
         ultimaAtualizacao: "2025-06-09T15:30:00Z"
       }
     ],
@@ -97,7 +105,7 @@ const ComunidadeRural = () => {
         descricao: "Procedimentos essenciais para emergências rurais.",
         tipoConteudo: "VIDEO",
         categoriaConteudo: "SAUDE",
-        urlArquivo: "https://www.youtube.com/embed/primeiros-socorros",
+        urlArquivo: "https://www.youtube.com/embed/KCzYPEy4oLo?si=r_DBb9Sl26e3RLNp",
         ultimaAtualizacao: "2025-06-08T14:20:00Z"
       },
       {
@@ -105,7 +113,7 @@ const ComunidadeRural = () => {
         descricao: "Catálogo de plantas com propriedades medicinais.",
         tipoConteudo: "PDF",
         categoriaConteudo: "SAUDE",
-        urlArquivo: "/docs/plantas-medicinais.pdf",
+        urlArquivo: "https://ciorganicos.com.br/wp-content/uploads/2017/10/A-ENCICLOPEDIA-DAS-PLANTAS-MEDICINAIS.pdf",
         ultimaAtualizacao: "2025-06-07T11:45:00Z"
       }
     ],
@@ -115,7 +123,7 @@ const ComunidadeRural = () => {
         descricao: "Conheça seus direitos e deveres trabalhistas.",
         tipoConteudo: "TEXTO",
         categoriaConteudo: "CIDADANIA",
-        urlArquivo: "https://gov.br/direitos-rurais",
+        urlArquivo: "https://www.trt4.jus.br/portais/media/3020338/Cartilha%20Trabalhador%20Rural%20-%20atualizado%201%20ago.pdf",
         ultimaAtualizacao: "2025-06-06T16:10:00Z"
       }
     ],
@@ -125,7 +133,7 @@ const ComunidadeRural = () => {
         descricao: "Linhas de financiamento disponíveis para produtores.",
         tipoConteudo: "INFOGRAFICO",
         categoriaConteudo: "GOVERNO",
-        urlArquivo: "/images/credito-rural-2025.png",
+        urlArquivo: "https://www.gov.br/pt-br/noticias/agricultura-e-pecuaria/2020/02/28.02InfograficoparaportalCreditorural.png/view",
         ultimaAtualizacao: "2025-06-05T13:30:00Z"
       }
     ],
@@ -327,8 +335,39 @@ const ComunidadeRural = () => {
     }
   }
 
-  // Função para curtir comentário
-  const curtirComentario = (id) => {
+  // Função para curtir conteúdo da categoria - ATUALIZADA
+  const curtirConteudo = async (categoriaIndex, conteudoIndex) => {
+    const conteudoId = `${categoriaIndex}-${conteudoIndex}`
+    
+    // Adicionar à lista de animações
+    setLikesAnimando(prev => new Set([...prev, conteudoId]))
+    
+    // Atualizar estado do like do conteúdo (apenas curtido/não curtido)
+    setLikesConteudo(prev => {
+      const newMap = new Map(prev)
+      const currentLikes = newMap.get(conteudoId) || { curtido: false }
+      newMap.set(conteudoId, {
+        curtido: !currentLikes.curtido
+      })
+      return newMap
+    })
+
+    // Simular delay da API e remover animação
+    setTimeout(() => {
+      setLikesAnimando(prev => {
+        const newSet = new Set(prev)
+        newSet.delete(conteudoId)
+        return newSet
+      })
+    }, 600) // Duração da animação
+  }
+
+  // Função para curtir comentário - MANTIDA
+  const curtirComentario = async (id) => {
+    // Adicionar à lista de animações
+    setLikesAnimando(prev => new Set([...prev, id]))
+    
+    // Atualizar estado do comentário
     setComentarios(prev => prev.map(comentario => 
       comentario.id === id 
         ? { 
@@ -338,6 +377,15 @@ const ComunidadeRural = () => {
           }
         : comentario
     ))
+
+    // Simular delay da API e remover animação
+    setTimeout(() => {
+      setLikesAnimando(prev => {
+        const newSet = new Set(prev)
+        newSet.delete(id)
+        return newSet
+      })
+    }, 600) // Duração da animação
   }
 
   // Função para adicionar novo comentário
@@ -514,6 +562,18 @@ const ComunidadeRural = () => {
     }
   }
 
+  // Função para abrir modal de vídeo - ADICIONAR
+  const abrirModalVideo = (conteudo) => {
+    setVideoAtual(conteudo)
+    setVideoModalAberto(true)
+  }
+
+  // Função para fechar modal de vídeo - ADICIONAR
+  const fecharModalVideo = () => {
+    setVideoModalAberto(false)
+    setVideoAtual(null)
+  }
+
   // Fechar dropdown ao clicar fora
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -641,7 +701,7 @@ const ComunidadeRural = () => {
         </div>
       </section>
 
-      {/* Conteúdos por Categoria */}
+      {/* Conteúdos por Categoria - COM ANIMAÇÃO DE LIKE SEM NÚMEROS */}
       <section className="py-12 px-4">
         <div className="container mx-auto">
           <div className="text-center mb-12">
@@ -711,6 +771,8 @@ const ComunidadeRural = () => {
                     <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
                       {conteudos.map((conteudo, index) => {
                         const IconeTipo = obterIconePorTipo(conteudo.tipoConteudo)
+                        const conteudoId = `${categoriaIndex}-${index}`
+                        const likeData = likesConteudo.get(conteudoId) || { curtido: false }
                         
                         return (
                           <Card key={index} className="animate-grow-in hover:shadow-lg transition-all duration-300" style={{animationDelay: `${(categoriaIndex * 3 + index) * 0.05}s`}}>
@@ -742,10 +804,8 @@ const ComunidadeRural = () => {
                                   className="flex-1"
                                   onClick={() => {
                                     if (conteudo.tipoConteudo === 'VIDEO') {
-                                      // Abrir modal de vídeo ou redirecionar
-                                      alert(`Reproduzindo: ${conteudo.titulo}`)
+                                      abrirModalVideo(conteudo)
                                     } else {
-                                      // Abrir link em nova aba
                                       window.open(conteudo.urlArquivo, '_blank', 'noopener,noreferrer')
                                     }
                                   }}
@@ -762,13 +822,75 @@ const ComunidadeRural = () => {
                                     </>
                                   )}
                                 </Button>
-                                <Button variant="outline" size="sm">
-                                  <Heart className="h-4 w-4" />
+                                
+                                {/* BOTÃO DE LIKE APENAS COM ANIMAÇÃO - SEM NÚMEROS */}
+                                <Button 
+                                  variant="outline" 
+                                  size="sm"
+                                  onClick={() => curtirConteudo(categoriaIndex, index)}
+                                  className={`relative overflow-hidden transition-all duration-300 ${
+                                    likeData.curtido 
+                                      ? 'text-red-500 hover:text-red-600 bg-red-50 border-red-200' 
+                                      : 'text-muted-foreground hover:text-red-500 hover:bg-red-50'
+                                  }`}
+                                  title={likeData.curtido ? 'Curtido!' : 'Curtir'}
+                                >
+                                  {/* Efeito de ondas no clique */}
+                                  {likesAnimando.has(conteudoId) && (
+                                    <>
+                                      {/* Onda 1 */}
+                                      <div className="absolute inset-0 rounded-md bg-red-500/20 animate-ping" />
+                                      {/* Onda 2 */}
+                                      <div className="absolute inset-0 rounded-md bg-red-500/10 animate-ping" style={{animationDelay: '0.1s'}} />
+                                      {/* Onda 3 */}
+                                      <div className="absolute inset-0 rounded-md bg-red-500/5 animate-ping" style={{animationDelay: '0.2s'}} />
+                                    </>
+                                  )}
+                                  
+                                  {/* Ícone do coração com animação - SEM CONTADOR */}
+                                  <Heart 
+                                    className={`h-4 w-4 relative z-10 transition-all duration-300 ${
+                                      likeData.curtido ? 'fill-current scale-110' : ''
+                                    } ${
+                                      likesAnimando.has(conteudoId) 
+                                        ? 'animate-bounce scale-125' 
+                                        : ''
+                                    }`} 
+                                  />
+
+                                  {/* Partículas de coração voando */}
+                                  {likesAnimando.has(conteudoId) && likeData.curtido && (
+                                    <>
+                                      {[...Array(4)].map((_, i) => (
+                                        <div
+                                          key={i}
+                                          className="absolute pointer-events-none"
+                                          style={{
+                                            left: `${15 + Math.random() * 30}%`,
+                                            top: `${20 + Math.random() * 30}%`,
+                                            animation: `floatUp 0.6s ease-out forwards`,
+                                            animationDelay: `${i * 0.08}s`
+                                          }}
+                                        >
+                                          <Heart 
+                                            className="h-2 w-2 text-red-500 fill-current" 
+                                            style={{
+                                              transform: `rotate(${Math.random() * 360}deg)`
+                                            }}
+                                          />
+                                        </div>
+                                      ))}
+                                    </>
+                                  )}
                                 </Button>
+                                
                                 <Button variant="outline" size="sm">
                                   <Share2 className="h-4 w-4" />
                                 </Button>
                               </div>
+
+                              {/* REMOVER SEÇÃO DE ESTATÍSTICAS */}
+                              {/* Seção de estatísticas removida completamente */}
                             </CardContent>
                           </Card>
                         )
@@ -908,7 +1030,7 @@ const ComunidadeRural = () => {
         </div>
       </section>
 
-      {/* Feed da Comunidade - MOVIDO AQUI */}
+      {/* Feed da Comunidade - COM ANIMAÇÃO DE LIKE */}
       <section className="py-12 px-4 bg-white/30">
         <div className="container mx-auto">
           <div className="text-center mb-8">
@@ -963,7 +1085,7 @@ const ComunidadeRural = () => {
             </CardContent>
           </Card>
 
-          {/* Lista de comentários com dropdown de ações */}
+          {/* Lista de comentários com ANIMAÇÃO DE LIKE */}
           <div className="space-y-6">
             {obterComentariosPagina().map((comentario, index) => (
               <Card key={comentario.id} className="animate-fade-in-up" style={{animationDelay: `${index * 0.1}s`}}>
@@ -1094,14 +1216,71 @@ const ComunidadeRural = () => {
                     <>
                       <div className="flex items-center justify-between pt-3 border-t border-border">
                         <div className="flex items-center gap-4">
+                          {/* BOTÃO DE LIKE COM ANIMAÇÃO */}
                           <Button 
                             variant="ghost" 
                             size="sm"
                             onClick={() => curtirComentario(comentario.id)}
-                            className={`${comentario.curtido ? 'text-red-500 hover:text-red-600' : 'text-muted-foreground hover:text-red-500'} transition-colors`}
+                            className={`relative overflow-hidden transition-all duration-300 ${
+                              comentario.curtido 
+                                ? 'text-red-500 hover:text-red-600 bg-red-50' 
+                                : 'text-muted-foreground hover:text-red-500 hover:bg-red-50'
+                            }`}
                           >
-                            <Heart className={`h-4 w-4 mr-1 ${comentario.curtido ? 'fill-current' : ''}`} />
-                            {comentario.curtidas} Curtidas
+                            {/* Efeito de ondas no clique */}
+                            {likesAnimando.has(comentario.id) && (
+                              <>
+                                {/* Onda 1 */}
+                                <div className="absolute inset-0 rounded-full bg-red-500/20 animate-ping" />
+                                {/* Onda 2 */}
+                                <div className="absolute inset-0 rounded-full bg-red-500/10 animate-ping" style={{animationDelay: '0.1s'}} />
+                                {/* Onda 3 */}
+                                <div className="absolute inset-0 rounded-full bg-red-500/5 animate-ping" style={{animationDelay: '0.2s'}} />
+                              </>
+                            )}
+                            
+                            {/* Ícone do coração com animação */}
+                            <Heart 
+                              className={`h-4 w-4 mr-1 relative z-10 transition-all duration-300 ${
+                                comentario.curtido ? 'fill-current scale-110' : ''
+                              } ${
+                                likesAnimando.has(comentario.id) 
+                                  ? 'animate-bounce scale-125' 
+                                  : ''
+                              }`} 
+                            />
+                            
+                            {/* Contador com animação */}
+                            <span className={`relative z-10 transition-all duration-300 ${
+                              likesAnimando.has(comentario.id) ? 'scale-110 font-semibold' : ''
+                            }`}>
+                              {comentario.curtidas} Curtidas
+                            </span>
+
+                            {/* Partículas de coração voando */}
+                            {likesAnimando.has(comentario.id) && comentario.curtido && (
+                              <>
+                                {[...Array(6)].map((_, i) => (
+                                  <div
+                                    key={i}
+                                    className="absolute pointer-events-none"
+                                    style={{
+                                      left: `${20 + Math.random() * 40}%`,
+                                      top: `${30 + Math.random() * 40}%`,
+                                      animation: `floatUp 0.8s ease-out forwards`,
+                                      animationDelay: `${i * 0.1}s`
+                                    }}
+                                  >
+                                    <Heart 
+                                      className="h-3 w-3 text-red-500 fill-current" 
+                                      style={{
+                                        transform: `rotate(${Math.random() * 360}deg)`
+                                      }}
+                                    />
+                                  </div>
+                                ))}
+                              </>
+                            )}
                           </Button>
                           
                           <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-blue-500 transition-colors">
@@ -1219,9 +1398,205 @@ const ComunidadeRural = () => {
           </div>
         </div>
       </section>
+
+      {/* Modal de Vídeo - ADICIONAR */}
+      {videoModalAberto && videoAtual && (
+        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl max-w-4xl w-full max-h-[90vh] overflow-hidden">
+            {/* Header do Modal */}
+            <div className="flex items-center justify-between p-4 border-b border-border">
+              <div>
+                <h3 className="text-lg font-semibold text-foreground">
+                  {videoAtual.titulo}
+                </h3>
+                <p className="text-sm text-muted-foreground">
+                  {obterNomeCategoria(videoAtual.categoriaConteudo)}
+                </p>
+              </div>
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                onClick={fecharModalVideo}
+                className="hover:bg-muted"
+              >
+                <X className="h-5 w-5" />
+              </Button>
+            </div>
+
+            {/* Conteúdo do Modal */}
+            <div className="p-6">
+              {/* Player de Vídeo */}
+              <div className="aspect-video mb-4 bg-black rounded-lg overflow-hidden">
+                <iframe
+                  src={videoAtual.urlArquivo}
+                  title={videoAtual.titulo}
+                  className="w-full h-full"
+                  frameBorder="0"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                />
+              </div>
+
+              {/* Informações do Vídeo */}
+              <div className="space-y-4">
+                <div>
+                  <h4 className="font-semibold text-foreground mb-2">Descrição</h4>
+                  <p className="text-muted-foreground leading-relaxed">
+                    {videoAtual.descricao}
+                  </p>
+                </div>
+
+                <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                  <div className="flex items-center gap-1">
+                    <Clock className="h-4 w-4" />
+                    {formatarData(videoAtual.ultimaAtualizacao)}
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <Video className="h-4 w-4" />
+                    {videoAtual.tipoConteudo}
+                  </div>
+                  <Badge variant="outline" className="text-xs">
+                    {obterNomeCategoria(videoAtual.categoriaConteudo)}
+                  </Badge>
+                </div>
+
+                {/* Ações do Vídeo */}
+                <div className="flex gap-2 pt-4 border-t border-border">
+                  <Button variant="outline" size="sm" className="flex-1">
+                    <Heart className="h-4 w-4 mr-2" />
+                    Curtir
+                  </Button>
+                  <Button variant="outline" size="sm" className="flex-1">
+                    <Share2 className="h-4 w-4 mr-2" />
+                    Compartilhar
+                  </Button>
+                  <Button variant="outline" size="sm" className="flex-1">
+                    <MessageSquare className="h-4 w-4 mr-2" />
+                    Comentar
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Overlay para fechar modal clicando fora */}
+      {videoModalAberto && (
+        <div 
+          className="fixed inset-0 z-40" 
+          onClick={fecharModalVideo}
+        />
+      )}
     </div>
   )
+
+  // Fechar modal com ESC - ADICIONAR useEffect
+  useEffect(() => {
+    const handleEscapeKey = (event) => {
+      if (event.key === 'Escape') {
+        if (videoModalAberto) {
+          fecharModalVideo()
+        }
+        if (comentarioEditando) {
+          cancelarEdicao()
+        }
+        if (dropdownAberto) {
+          setDropdownAberto(null)
+        }
+      }
+    }
+
+    document.addEventListener('keydown', handleEscapeKey)
+    
+    return () => {
+      document.removeEventListener('keydown', handleEscapeKey)
+    }
+  }, [videoModalAberto, comentarioEditando, dropdownAberto])
 }
 
 export default ComunidadeRural
+
+// CSS personalizado para animações - ATUALIZADO
+const style = document.createElement('style')
+style.textContent = `
+  @keyframes floatUp {
+    0% {
+      opacity: 1;
+      transform: translateY(0) scale(1) rotate(0deg);
+    }
+    50% {
+      opacity: 0.8;
+      transform: translateY(-15px) scale(1.2) rotate(180deg);
+    }
+    100% {
+      opacity: 0;
+      transform: translateY(-30px) scale(0.5) rotate(360deg);
+    }
+  }
+
+  @keyframes heartBeat {
+    0%, 100% {
+      transform: scale(1);
+    }
+    50% {
+      transform: scale(1.1);
+    }
+  }
+
+  @keyframes heartPulse {
+    0% {
+      transform: scale(1);
+      box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4);
+    }
+    70% {
+      transform: scale(1.05);
+      box-shadow: 0 0 0 10px rgba(239, 68, 68, 0);
+    }
+    100% {
+      transform: scale(1);
+      box-shadow: 0 0 0 0 rgba(239, 68, 68, 0);
+    }
+  }
+
+  .heart-liked {
+    animation: heartBeat 0.3s ease-in-out;
+  }
+
+  .like-button:hover .heart-icon {
+    transform: scale(1.05);
+    transition: transform 0.2s ease;
+  }
+
+  .like-ripple {
+    position: absolute;
+    border-radius: 50%;
+    background: rgba(239, 68, 68, 0.3);
+    transform: scale(0);
+    animation: ripple 0.6s linear;
+  }
+
+  @keyframes ripple {
+    to {
+      transform: scale(4);
+      opacity: 0;
+    }
+  }
+
+  /* Animação específica para cards de conteúdo */
+  .content-like-button {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .content-like-button:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
+
+  .content-like-button.liked {
+    animation: heartPulse 0.6s ease-in-out;
+  }
+`
+document.head.appendChild(style)
 
